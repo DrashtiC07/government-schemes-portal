@@ -14,9 +14,44 @@ import {
   Mail,
   TrendingUp,
   AlertCircle,
-  Search,
   ChevronDown,
 } from "lucide-react";
+const STATES = [
+  "All India",
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+];
+
+const MINISTRIES = ["All", "NPTEL", "AYUSH", "AICTE", "ISRO", "KVPY"];
+const GENDERS = ["All", "Male", "Female", "Other"];
+const CASTES = ["All", "General", "OBC", "SC", "ST", "EWS", "Minority"];
+const AGES = ["All", "16–25", "18+", "60+"];
 
 const AdminDashboard = () => {
   const [schemes, setSchemes] = useState([]);
@@ -68,7 +103,7 @@ const AdminDashboard = () => {
   // Fetch schemes
   const fetchSchemes = async () => {
     try {
-      const res = await fetch("http://localhost:5000/admin/schemes", {
+      const res = await fetch("http://localhost:5001/api/admin/schemes", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -88,7 +123,7 @@ const AdminDashboard = () => {
   // Fetch contacts
   const fetchContacts = async () => {
     try {
-      const res = await fetch("http://localhost:5000/admin/contacts", {
+      const res = await fetch("http://localhost:5001/api/admin/contacts", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -131,7 +166,7 @@ const AdminDashboard = () => {
   // Handle scheme actions
   const handleSchemeAction = async (id, action) => {
     try {
-      let url = `http://localhost:5000/admin/schemes/${id}`;
+      let url = `http://localhost:5001/api/admin/schemes/${id}`;
       let method = "PUT";
 
       if (action === "approve") url += "/approve";
@@ -163,7 +198,7 @@ const AdminDashboard = () => {
   const handleContactReply = async (id, reply) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/admin/contacts/${id}/reply`,
+        `http://localhost:5001/api/admin/contacts/${id}/reply`,
         {
           method: "PUT",
           headers: {
@@ -231,8 +266,8 @@ const AdminDashboard = () => {
     e.preventDefault();
     try {
       const url = editScheme
-        ? `http://localhost:5000/admin/schemes/${editScheme._id}`
-        : "http://localhost:5000/admin/schemes";
+        ? `http://localhost:5001/api/admin/schemes/${editScheme._id}`
+        : "http://localhost:5001/api/admin/schemes";
       const method = editScheme ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -261,8 +296,12 @@ const AdminDashboard = () => {
   // Filter schemes
   const filteredSchemes = schemes.filter((scheme) => {
     const matchesSearch =
-      scheme.schemeFullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      scheme.shortDetail.toLowerCase().includes(searchTerm.toLowerCase());
+      (scheme.schemeFullName &&
+        scheme.schemeFullName
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())) ||
+      (scheme.shortDetail &&
+        scheme.shortDetail.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesStatus =
       statusFilter === "all" ||
       scheme.status === statusFilter ||
@@ -325,7 +364,7 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -436,19 +475,6 @@ const AdminDashboard = () => {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
                 <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                  <div className="relative">
-                    <Search
-                      size={20}
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Search schemes..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                    />
-                  </div>
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
@@ -481,7 +507,7 @@ const AdminDashboard = () => {
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
                         <h3 className="text-lg font-semibold text-gray-900">
-                          {scheme.schemeFullName}
+                          {scheme.schemeFullName || "Untitled Scheme"}
                         </h3>
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -495,13 +521,19 @@ const AdminDashboard = () => {
                           {scheme.status || "pending"}
                         </span>
                       </div>
-                      <p className="text-gray-600 mb-3">{scheme.shortDetail}</p>
+                      <p className="text-gray-600 mb-3">
+                        {scheme.shortDetail || "No description available"}
+                      </p>
                       <div className="flex items-center space-x-4 text-sm text-gray-500">
-                        <span>State: {scheme.state}</span>
-                        <span>Ministry: {scheme.ministry}</span>
+                        <span>State: {scheme.state || "Not specified"}</span>
+                        <span>
+                          Ministry: {scheme.ministry || "Not specified"}
+                        </span>
                         <span>
                           Created:{" "}
-                          {new Date(scheme.createdAt).toLocaleDateString()}
+                          {scheme.createdAt
+                            ? new Date(scheme.createdAt).toLocaleDateString()
+                            : "Unknown"}
                         </span>
                       </div>
                     </div>
@@ -564,14 +596,16 @@ const AdminDashboard = () => {
                     </h3>
                     <p className="text-gray-600">{contact.email}</p>
                     <p className="text-sm text-gray-500">
-                      {new Date(contact.createdAt).toLocaleDateString()}
+                      {new Date(
+                        contact.createdAt || contact.timestamp
+                      ).toLocaleDateString()}
                     </p>
                   </div>
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium ${
                       contact.replied
                         ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
+                        : "bg-yellow-100 text-yellow-800"
                     }`}
                   >
                     {contact.replied ? "Replied" : "Pending"}
@@ -586,6 +620,12 @@ const AdminDashboard = () => {
                       Admin Reply:
                     </p>
                     <p className="text-gray-600">{contact.reply}</p>
+                    {contact.repliedAt && (
+                      <p className="text-xs text-gray-500 mt-2">
+                        Replied on:{" "}
+                        {new Date(contact.repliedAt).toLocaleString()}
+                      </p>
+                    )}
                   </div>
                 )}
                 <div className="flex items-center space-x-4">
@@ -595,7 +635,7 @@ const AdminDashboard = () => {
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     onKeyPress={(e) => {
                       if (e.key === "Enter" && e.target.value.trim()) {
-                        handleContactReply(contact._id, e.target.value);
+                        handleContactReply(contact._id, e.target.value.trim());
                         e.target.value = "";
                       }
                     }}
@@ -605,8 +645,10 @@ const AdminDashboard = () => {
                       const input =
                         e.target.parentElement.querySelector("input");
                       if (input.value.trim()) {
-                        handleContactReply(contact._id, input.value);
+                        handleContactReply(contact._id, input.value.trim());
                         input.value = "";
+                      } else {
+                        toast.error("Please enter a reply message");
                       }
                     }}
                     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
@@ -755,57 +797,20 @@ const AdminDashboard = () => {
                           name="state"
                           value={formData.state}
                           onChange={handleChange}
-                          className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                          className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none cursor-pointer text-gray-700"
                           required
                         >
-                          <option value="" disabled>
-                            Select State
-                          </option>
-                          <option value="All">All India</option>
-                          <option value="andhra pradesh">Andhra Pradesh</option>
-                          <option value="arunachal pradesh">
-                            Arunachal Pradesh
-                          </option>
-                          <option value="assam">Assam</option>
-                          <option value="bihar">Bihar</option>
-                          <option value="chandigarh">Chandigarh</option>
-                          <option value="chhattisgarh">Chhattisgarh</option>
-                          <option value="delhi">Delhi</option>
-                          <option value="goa">Goa</option>
-                          <option value="gujarat">Gujarat</option>
-                          <option value="haryana">Haryana</option>
-                          <option value="himachal pradesh">
-                            Himachal Pradesh
-                          </option>
-                          <option value="jammu and kashmir">
-                            Jammu and Kashmir
-                          </option>
-                          <option value="jharkhand">Jharkhand</option>
-                          <option value="karnataka">Karnataka</option>
-                          <option value="kerala">Kerala</option>
-                          <option value="ladakh">Ladakh</option>
-                          <option value="lakshadweep">Lakshadweep</option>
-                          <option value="madhya pradesh">Madhya Pradesh</option>
-                          <option value="maharashtra">Maharashtra</option>
-                          <option value="manipur">Manipur</option>
-                          <option value="meghalaya">Meghalaya</option>
-                          <option value="mizoram">Mizoram</option>
-                          <option value="nagaland">Nagaland</option>
-                          <option value="odisha">Odisha</option>
-                          <option value="puducherry">Puducherry</option>
-                          <option value="punjab">Punjab</option>
-                          <option value="rajasthan">Rajasthan</option>
-                          <option value="sikkim">Sikkim</option>
-                          <option value="tamil nadu">Tamil Nadu</option>
-                          <option value="telangana">Telangana</option>
-                          <option value="tripura">Tripura</option>
-                          <option value="uttar pradesh">Uttar Pradesh</option>
-                          <option value="uttarakhand">Uttarakhand</option>
-                          <option value="west bengal">West Bengal</option>
+                          <option value="">Select State</option>
+                          {STATES.map((s, i) => (
+                            <option key={i} value={s}>
+                              {s}
+                            </option>
+                          ))}
                         </select>
+
                         <ChevronDown
-                          size={16}
-                          className="absolute right-3 top-3 text-gray-400 pointer-events-none"
+                          size={20}
+                          className="absolute right-4 top-4 text-gray-500 pointer-events-none"
                         />
                       </div>
                     </div>
@@ -820,22 +825,20 @@ const AdminDashboard = () => {
                           name="ministry"
                           value={formData.ministry}
                           onChange={handleChange}
-                          className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                          className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none cursor-pointer text-gray-700"
                           required
                         >
-                          <option value="" disabled>
-                            Select Ministry
-                          </option>
-                          <option value="all">All</option>
-                          <option value="nptel">NPTEL</option>
-                          <option value="ayush">AYUSH</option>
-                          <option value="aicte">AICTE</option>
-                          <option value="isro">ISRO</option>
-                          <option value="kvpy">KVPY</option>
+                          <option value="">Select Ministry</option>
+                          {MINISTRIES.map((m, i) => (
+                            <option key={i} value={m}>
+                              {m}
+                            </option>
+                          ))}
                         </select>
+
                         <ChevronDown
-                          size={16}
-                          className="absolute right-3 top-3 text-gray-400 pointer-events-none"
+                          size={20}
+                          className="absolute right-4 top-4 text-gray-500 pointer-events-none"
                         />
                       </div>
                     </div>
@@ -850,20 +853,20 @@ const AdminDashboard = () => {
                           name="gender"
                           value={formData.gender}
                           onChange={handleChange}
-                          className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                          className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none cursor-pointer text-gray-700"
                           required
                         >
-                          <option value="" disabled>
-                            Select Gender
-                          </option>
-                          <option value="all">All</option>
-                          <option value="male">Male</option>
-                          <option value="female">Female</option>
-                          <option value="other">Other</option>
+                          <option value="">Select Gender</option>
+                          {GENDERS.map((g, i) => (
+                            <option key={i} value={g}>
+                              {g}
+                            </option>
+                          ))}
                         </select>
+
                         <ChevronDown
-                          size={16}
-                          className="absolute right-3 top-3 text-gray-400 pointer-events-none"
+                          size={20}
+                          className="absolute right-4 top-4 text-gray-500 pointer-events-none"
                         />
                       </div>
                     </div>
@@ -878,23 +881,20 @@ const AdminDashboard = () => {
                           name="caste"
                           value={formData.caste}
                           onChange={handleChange}
-                          className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                          className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none cursor-pointer text-gray-700"
                           required
                         >
-                          <option value="" disabled>
-                            Select Caste
-                          </option>
-                          <option value="all">All</option>
-                          <option value="general">GENERAL</option>
-                          <option value="obc">OBC</option>
-                          <option value="st">ST</option>
-                          <option value="sc">SC</option>
-                          <option value="ews">EWS</option>
-                          <option value="minority">MINORITY</option>
+                          <option value="">Select Caste</option>
+                          {CASTES.map((c, i) => (
+                            <option key={i} value={c}>
+                              {c}
+                            </option>
+                          ))}
                         </select>
+
                         <ChevronDown
-                          size={16}
-                          className="absolute right-3 top-3 text-gray-400 pointer-events-none"
+                          size={20}
+                          className="absolute right-4 top-4 text-gray-500 pointer-events-none"
                         />
                       </div>
                     </div>
@@ -904,17 +904,20 @@ const AdminDashboard = () => {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Age <span className="text-red-500">*</span>
                       </label>
-                      <input
-                        type="number"
+                      <select
                         name="age"
                         value={formData.age}
                         onChange={handleChange}
-                        min="0"
-                        max="120"
-                        className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
-                        placeholder="Enter eligible age"
+                        className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none cursor-pointer text-gray-700"
                         required
-                      />
+                      >
+                        <option value="">Select Age</option>
+                        {AGES.map((a, i) => (
+                          <option key={i} value={a}>
+                            {a}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>

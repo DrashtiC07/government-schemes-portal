@@ -55,7 +55,7 @@ const Scheme = () => {
   const fetchSchemes = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/get-schemes");
+      const response = await fetch("http://localhost:5001/api/get-schemes");
       const data = await response.json();
       setSchemes(data);
       setFilteredSchemes(data);
@@ -70,7 +70,7 @@ const Scheme = () => {
     if (!token) return;
     try {
       const response = await fetch(
-        "http://localhost:5000/api/me/saved-schemes",
+        "http://localhost:5001/api/me/saved-schemes",
         {
           headers: { Authorization: "Bearer " + token },
         }
@@ -88,7 +88,7 @@ const Scheme = () => {
       return;
     }
     try {
-      await fetch(`http://localhost:5000/api/me/saved-schemes/${id}`, {
+      await fetch(`http://localhost:5001/api/me/saved-schemes/${id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -104,7 +104,7 @@ const Scheme = () => {
   const unsaveScheme = async (id) => {
     if (!token) return;
     try {
-      await fetch(`http://localhost:5000/api/me/saved-schemes/${id}`, {
+      await fetch(`http://localhost:5001/api/me/saved-schemes/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: "Bearer " + token,
@@ -590,11 +590,11 @@ const Scheme = () => {
                     <img
                       className="w-full h-full object-cover transform transition-transform hover:scale-105 duration-500"
                       src={
-                        scheme.schemeImageLink ||
-                        "https://via.placeholder.com/400x200?text=Scheme+Image" ||
-                        "/placeholder.svg" ||
-                        "/placeholder.svg" ||
-                        "/placeholder.svg"
+                        scheme.schemeImageLink
+                          ? `http://localhost:5001/images/schemes/${scheme.schemeImageLink
+                              .split("/")
+                              .pop()}`
+                          : "https://via.placeholder.com/400x200?text=Government+Scheme"
                       }
                       alt={scheme.schemeFullName}
                       onError={(e) => {

@@ -1,13 +1,13 @@
-// index.js (partial update - just the OTP-related parts)
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const path = require("path"); // Added path module for static file serving
 const { MONGOURI, EMAIL, GPASS } = require("./config/keys");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001; // Changed port from 5000 to 5001 to avoid conflicts
 
 // Middleware
 app.use(
@@ -18,6 +18,12 @@ app.use(
   })
 );
 app.use(express.json());
+
+app.use("/static", express.static(path.join(__dirname, "../client/public")));
+app.use(
+  "/images",
+  express.static(path.join(__dirname, "../client/public/images"))
+);
 
 // Database connection
 mongoose.connect(MONGOURI, {
@@ -54,6 +60,7 @@ app.use("/api", require("./routes/admin"));
 app.use("/api", require("./routes/admin_pdf"));
 app.use("/api", require("./routes/profile"));
 app.use("/api", require("./routes/myscheme"));
+app.use("/api", require("./routes/contact")); // Added contact routes
 
 // Home route
 app.get("/", (req, res) => {

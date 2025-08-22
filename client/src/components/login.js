@@ -1,4 +1,6 @@
-import React, { useContext, useState, useEffect } from "react";
+"use client";
+
+import { useContext, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "../App";
 import { toast } from "react-toastify";
@@ -50,7 +52,7 @@ const Login = () => {
 
     try {
       // Make API call
-      const response = await fetch("http://localhost:5000/api/signin", {
+      const response = await fetch("http://localhost:5001/api/signin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
