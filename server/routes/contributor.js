@@ -6,10 +6,10 @@ const Scheme = mongoose.model("Scheme");
 const Contact = mongoose.model("Contact");
 const requireSignin = require("../middleware/requireSignin");
 
-// PUBLIC: list approved schemes (supports query filters)
+// PUBLIC: list all schemes (supports query filters)
 router.get("/get-schemes", async (req, res) => {
   try {
-    const q = { status: "approved" };
+    const q = {};
     const filters = [
       "state",
       "city",
@@ -28,13 +28,11 @@ router.get("/get-schemes", async (req, res) => {
   }
 });
 
-// PUBLIC: get a single approved scheme
+// PUBLIC: get a single scheme (removed approval restriction)
 router.get("/scheme/:id", async (req, res) => {
   try {
     const s = await Scheme.findById(req.params.id);
     if (!s) return res.status(404).json({ error: "Scheme not found" });
-    if (s.status !== "approved")
-      return res.status(403).json({ error: "Scheme not approved" });
     res.json(s);
   } catch {
     res.status(500).json({ error: "Failed to fetch scheme" });
@@ -44,17 +42,27 @@ router.get("/scheme/:id", async (req, res) => {
 // USER: submit new scheme -> pending
 router.post("/new-scheme", requireSignin, async (req, res) => {
   try {
+    // Check if user is admin by looking at their role
+    const userRole = req.user.role || "user"; // Default to 'user' if no role set
+
     const s = new Scheme({
       ...req.body,
-      status: "pending",
+      status: userRole === "admin" ? "approved" : "pending",
       createdBy: req.user._id,
     });
     await s.save();
+
+    const message =
+      userRole === "admin"
+        ? "Scheme created and approved successfully."
+        : "Scheme submitted. Awaiting admin approval.";
+
     res.json({
-      message: "Scheme submitted. Awaiting admin approval.",
+      message,
       scheme: s,
     });
-  } catch {
+  } catch (error) {
+    console.error("Error creating scheme:", error);
     res.status(422).json({ error: "Failed to submit scheme" });
   }
 });

@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
@@ -17,11 +19,8 @@ import {
   FileText,
   Award,
   Bookmark,
-  BookmarkCheck,
-  Check,
   ChevronDown,
   Heart,
-  HeartOff,
 } from "lucide-react";
 
 const Scheme = () => {
@@ -56,7 +55,7 @@ const Scheme = () => {
   const fetchSchemes = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/get-schemes");
+      const response = await fetch("http://localhost:5000/api/get-schemes");
       const data = await response.json();
       setSchemes(data);
       setFilteredSchemes(data);
@@ -70,9 +69,12 @@ const Scheme = () => {
   const fetchSavedSchemes = async () => {
     if (!token) return;
     try {
-      const response = await fetch("http://localhost:5000/me/saved-schemes", {
-        headers: { Authorization: "Bearer " + token },
-      });
+      const response = await fetch(
+        "http://localhost:5000/api/me/saved-schemes",
+        {
+          headers: { Authorization: "Bearer " + token },
+        }
+      );
       const data = await response.json();
       setSavedSchemes(new Set(data.map((scheme) => scheme._id)));
     } catch (error) {
@@ -86,7 +88,7 @@ const Scheme = () => {
       return;
     }
     try {
-      await fetch(`http://localhost:5000/me/saved-schemes/${id}`, {
+      await fetch(`http://localhost:5000/api/me/saved-schemes/${id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -102,7 +104,7 @@ const Scheme = () => {
   const unsaveScheme = async (id) => {
     if (!token) return;
     try {
-      await fetch(`http://localhost:5000/me/saved-schemes/${id}`, {
+      await fetch(`http://localhost:5000/api/me/saved-schemes/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: "Bearer " + token,
@@ -160,8 +162,8 @@ const Scheme = () => {
       if (filters[filter]) {
         filtered = filtered.filter((scheme) => {
           if (filter === "age") {
-            const age = parseInt(scheme[filter], 10);
-            const filterValue = parseInt(filters[filter], 10);
+            const age = Number.parseInt(scheme[filter], 10);
+            const filterValue = Number.parseInt(filters[filter], 10);
             switch (filters[filter]) {
               case "9":
                 return age < 10;
@@ -589,7 +591,10 @@ const Scheme = () => {
                       className="w-full h-full object-cover transform transition-transform hover:scale-105 duration-500"
                       src={
                         scheme.schemeImageLink ||
-                        "https://via.placeholder.com/400x200?text=Scheme+Image"
+                        "https://via.placeholder.com/400x200?text=Scheme+Image" ||
+                        "/placeholder.svg" ||
+                        "/placeholder.svg" ||
+                        "/placeholder.svg"
                       }
                       alt={scheme.schemeFullName}
                       onError={(e) => {
