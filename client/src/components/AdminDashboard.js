@@ -177,6 +177,15 @@ const AdminDashboard = () => {
       const data = await res.json();
       if (res.ok) {
         toast.success("Reply saved successfully");
+        // Optimistically update UI and unread count
+        setContacts((prev) => {
+          const updated = prev.map((c) =>
+            c._id === id ? { ...c, replied: true, reply } : c
+          );
+          updateStats(schemes, updated);
+          return updated;
+        });
+        // Sync with server
         fetchContacts();
       } else {
         toast.error(data.error || "Failed to save reply");
@@ -249,6 +258,8 @@ const AdminDashboard = () => {
         toast.success(data.message || "Saved successfully");
         setFormVisible(false);
         fetchSchemes();
+      } else if (res.status === 404) {
+        toast.error("scheme not found! enter valid data");
       } else {
         toast.error(data.error || "Save failed");
       }
@@ -322,7 +333,7 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col pt-20">
       <Navbar />
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -574,7 +585,7 @@ const AdminDashboard = () => {
                         : "bg-red-100 text-red-800"
                     }`}
                   >
-                    {contact.replied ? "Replied" : "Pending"}
+                    {contact.replied ? "Replied successfuly" : "Pending"}
                   </span>
                 </div>
                 <div className="mb-4">
