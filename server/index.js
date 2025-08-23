@@ -7,12 +7,12 @@ const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 
 const app = express();
-const PORT = process.env.PORT || 5001; // Changed port from 5000 to 5001 to avoid conflicts
+const PORT = process.env.PORT || 5001; 
 
 // Middleware
 app.use(
   cors({
-    origin: ["https://myschemeproject.vercel.app", "http://localhost:3000"],
+    origin: [ "http://localhost:3000"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
@@ -60,11 +60,11 @@ app.use("/api", require("./routes/admin"));
 app.use("/api", require("./routes/admin_pdf"));
 app.use("/api", require("./routes/profile"));
 app.use("/api", require("./routes/myscheme"));
-app.use("/api", require("./routes/contact")); // Added contact routes
+app.use("/api", require("./routes/contact")); 
 
 // Home route
 app.get("/", (req, res) => {
-  res.json("🚀 Welcome to MyScheme API");
+  res.json("🚀 Welcome to FindSchme API");
 });
 
 // Health check

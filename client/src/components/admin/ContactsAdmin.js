@@ -6,7 +6,7 @@ export default function ContactsAdmin() {
   const token = localStorage.getItem("token");
 
   const load = async () => {
-    const res = await fetch("http://localhost:5000/admin/contacts", {
+    const res = await fetch("http://localhost:5001/admin/contacts", {
       headers: { Authorization: "Bearer " + token },
     });
     const data = await res.json();
@@ -18,7 +18,7 @@ export default function ContactsAdmin() {
   }, []);
 
   const saveReply = async (id) => {
-    await fetch(`http://localhost:5000/admin/contacts/${id}/reply`, {
+    await fetch(`http://localhost:5001/admin/contacts/${id}/reply`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

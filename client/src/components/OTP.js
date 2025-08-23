@@ -100,7 +100,7 @@ const OTP = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/verify-otp", {
+      const response = await fetch("http://localhost:5001/api/verify-otp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -138,7 +138,7 @@ const OTP = () => {
 
     setIsResending(true);
     try {
-      const response = await fetch("http://localhost:5000/api/resend-otp", {
+      const response = await fetch("http://localhost:5001/api/resend-otp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

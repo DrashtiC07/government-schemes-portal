@@ -44,7 +44,7 @@ const NewForm = () => {
     if (id) {
       const fetchScheme = async () => {
         try {
-          const res = await fetch(`http://localhost:5000/api/scheme/${id}`);
+          const res = await fetch(`http://localhost:5001/api/scheme/${id}`);
           const data = await res.json();
           if (res.ok) {
             setFormData(data);
@@ -68,8 +68,8 @@ const handleSubmit = async (e) => {
     const userRole = localStorage.getItem("role"); // "admin" or "user"
 
     const url = id
-      ? `http://localhost:5000/api/schemes/${id}` // update
-      : "http://localhost:5000/api/new-scheme"; // create
+      ? `http://localhost:5001/api/schemes/${id}` // update
+      : "http://localhost:5001/api/new-scheme"; // create
 
     const method = id ? "PUT" : "POST";
 

@@ -6,7 +6,7 @@ export default function AdminPDF() {
 
   // Load PDFs
   useEffect(() => {
-    fetch("http://localhost:5000/pdfs")
+    fetch("http://localhost:5001/pdfs")
       .then((res) => res.json())
       .then((data) => setPdfs(data));
   }, []);
@@ -15,7 +15,7 @@ export default function AdminPDF() {
     const title = prompt("Enter PDF title:");
     const url = prompt("Enter PDF URL (e.g., Google Drive link):");
 
-    await fetch("http://localhost:5000/admin/pdf", {
+    await fetch("http://localhost:5001/admin/pdf", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -29,7 +29,7 @@ export default function AdminPDF() {
   };
 
   const handleDelete = async (id) => {
-    await fetch(`http://localhost:5000/admin/pdf/${id}`, {
+    await fetch(`http://localhost:5001/admin/pdf/${id}`, {
       method: "DELETE",
       headers: { Authorization: "Bearer " + token },
     });

@@ -5,7 +5,7 @@ export default function ManageSchemes() {
   const token = localStorage.getItem("token");
 
   const load = async () => {
-    const res = await fetch("http://localhost:5000/admin/schemes", {
+    const res = await fetch("http://localhost:5001/admin/schemes", {
       headers: { Authorization: "Bearer " + token },
     });
     const data = await res.json();
@@ -17,7 +17,7 @@ export default function ManageSchemes() {
   }, []);
 
   const delItem = async (id) => {
-    await fetch(`http://localhost:5000/admin/schemes/${id}`, {
+    await fetch(`http://localhost:5001/admin/schemes/${id}`, {
       method: "DELETE",
       headers: { Authorization: "Bearer " + token },
     });

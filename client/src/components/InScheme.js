@@ -36,7 +36,7 @@ const InScheme = () => {
     const fetchSchemeDetails = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:5000/api/scheme/${_id}`);
+        const response = await fetch(`http://localhost:5001/api/scheme/${_id}`);
 
         if (!response.ok) {
           throw new Error("Failed to fetch scheme details");
@@ -62,7 +62,7 @@ const InScheme = () => {
     const fetchRelatedSchemes = async (ministry, state) => {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/get-schemes?ministry=${
+          `http://localhost:5001/api/get-schemes?ministry=${
             ministry || ""
           }&state=${state || ""}`
         );
@@ -85,7 +85,7 @@ const InScheme = () => {
         if (!token) return;
 
         const response = await fetch(
-          "http://localhost:5000/api/me/saved-schemes",
+          "http://localhost:5001/api/me/saved-schemes",
           {
             headers: {
               Authorization: "Bearer " + token,
@@ -221,7 +221,7 @@ const InScheme = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/me/saved-schemes/${_id}`,
+        `http://localhost:5001/api/me/saved-schemes/${_id}`,
         {
           method: "POST",
           headers: {
@@ -250,7 +250,7 @@ const InScheme = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/me/saved-schemes/${_id}`,
+        `http://localhost:5001/api/me/saved-schemes/${_id}`,
         {
           method: "DELETE",
           headers: {

@@ -6,7 +6,7 @@ export default function PendingSchemes() {
 
   const load = async () => {
     const res = await fetch(
-      "http://localhost:5000/admin/schemes?status=pending",
+      "http://localhost:5001/admin/schemes?status=pending",
       {
         headers: { Authorization: "Bearer " + token },
       }
@@ -20,7 +20,7 @@ export default function PendingSchemes() {
   }, []);
 
   const act = async (id, action) => {
-    await fetch(`http://localhost:5000/admin/schemes/${id}/${action}`, {
+    await fetch(`http://localhost:5001/admin/schemes/${id}/${action}`, {
       method: "PUT",
       headers: { Authorization: "Bearer " + token },
     });
